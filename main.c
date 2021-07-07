@@ -54,7 +54,8 @@ static char VERSION[] = "XX.YY.ZZ";
 #include "ws2811.h"
 
 #include "touchscreen.h"
-#include "colours.c"
+#include "colours.h"
+#include "mqtt.h"
 
 
 #define ARRAY_SIZE(stuff)       (sizeof(stuff) / sizeof(stuff[0]))
@@ -223,6 +224,8 @@ void draw_to_matrix( unsigned int** crds )
     unsigned int y_raw= *crds[1];
     unsigned int x = fmin( floor( x_raw / hitbox_w ), PANEL_W-1 );
     unsigned int y = floor( y_raw / hitbox_h );
+    char color_hexstr[15];
+    sprintf( color_hexstr, "0x%08X", color );
 
     if ( x_raw > getTouchscreenWidth() )
     {
@@ -231,7 +234,7 @@ void draw_to_matrix( unsigned int** crds )
         if ( new_color == color ){ return; }
         color = new_color;
         drawPixels();
-        printf("color: 0x%08X\n",color);
+        printf( "color: %s\n", color_hexstr );
         return;
     }
 
@@ -242,6 +245,9 @@ void draw_to_matrix( unsigned int** crds )
 
     pixel = coords_to_pixel( x, y );
     drawPixels();
+    char message[25];
+    sprintf( message, "%i,%i %s", x,y,color_hexstr );
+    mqtt_publish( message );
 }
 
 
@@ -450,6 +456,8 @@ int main(int argc, char *argv[])
     hitbox_w = getTouchscreenWidth() / WIDTH;
     hitbox_h = getTouchscreenHeight() / HEIGHT;
 
+    mqtt_init();
+
     startTouchscreenRead( &running, draw_to_matrix );
 /*
     while (running)
@@ -475,6 +483,7 @@ int main(int argc, char *argv[])
     }
 
     ws2811_fini(&ledstring);
+    mqtt_destroy();
 
     printf ("\n");
     return ret;

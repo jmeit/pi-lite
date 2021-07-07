@@ -20,6 +20,8 @@ set(LIB_TARGET ws2811)
 set(TEST_TARGET test)
 
 set(LIB_PUBLIC_HEADERS
+    mqtt.h
+    macaddr.h
     colours.h
     touchscreen.h
     ws2811.h
@@ -33,6 +35,8 @@ set(LIB_PUBLIC_HEADERS
 )
 
 set(LIB_SOURCES
+    mqtt.c
+    macaddr.c
     colours.c
     touchscreen.c
     mailbox.c
