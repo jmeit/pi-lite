@@ -34,10 +34,6 @@ tools_env = clean_envs['userspace'].Clone()
 
 # Build Library
 lib_srcs = Split('''
-    mqtt.c
-    macaddr.c
-    colours.c
-    touchscreen.c
     mailbox.c
     ws2811.c
     pwm.c

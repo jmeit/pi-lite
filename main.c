@@ -28,8 +28,6 @@
  */
 
 
-static char VERSION[] = "XX.YY.ZZ";
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,7 +67,6 @@ unsigned int num_panels,
     width, height,
     panel_w, panel_h,
     old_x, old_y;
-unsigned int pixel = 0;
 
 int clear_on_exit = 1;
 
@@ -84,7 +81,6 @@ ws2811_t ledstring =
         [0] =
         {
             .gpionum = GPIO_PIN,
-            .count = LED_COUNT,
             .invert = 0,
             .brightness = 30,
             .strip_type = STRIP_TYPE,
@@ -132,28 +128,28 @@ unsigned int coords_to_pixel( unsigned int x, unsigned int y )
 
     printf( "Crd init: (%i,%i) -- ", x, y );
 
-    unsigned int pnl_num = floor( y / PANEL_H );
-    y = PANEL_H - ( y % PANEL_H + 1 );
+    unsigned int pnl_num = floor( y / panel_h );
+    y = panel_h - ( y % panel_h + 1 );
 
     printf( "Panel: %i -- ", pnl_num );
     if( pnl_num%2 != 0 )
     {
-        x = PANEL_W - x - 1;
-        y = PANEL_H - y - 1;
+        x = panel_w - x - 1;
+        y = panel_h - y - 1;
     }
 
     // De-snake
     if( x%2 == 0 )
     {
-        pixel = x * PANEL_H + y;
+        pixel = x * panel_h + y;
     }
     else
     {
-        pixel = ( (x+1) * PANEL_H - y - 1 );
+        pixel = ( (x+1) * panel_h - y - 1 );
     }
 
     printf( "Pixel: %i -- ", pixel );
-    pixel = pnl_num * PANEL_W * PANEL_H + pixel;
+    pixel = pnl_num * panel_w * panel_h + pixel;
     printf( "Pixel adjusted: %i -- ", pixel );
     printf( "Crd: (%i,%i)\n", x, y );
 
@@ -162,7 +158,7 @@ unsigned int coords_to_pixel( unsigned int x, unsigned int y )
 }
 
 
-void drawPixels()
+void drawPixel( unsigned int pixel, uint32_t color )
 {
     ws2811_return_t ret;
 
@@ -176,10 +172,10 @@ void drawPixels()
 }
 
 
-int ws2811_init( int _num_panels, int _panel_w, int _panel_h )
+int ws2811_setup( int _num_panels, int _panel_w, int _panel_h )
 {
     ws2811_return_t ret;
-    panels = _num_panels;
+    num_panels = _num_panels;
     panel_w = _panel_w;
     panel_h = _panel_h;
     width = panel_w;
@@ -188,7 +184,7 @@ int ws2811_init( int _num_panels, int _panel_w, int _panel_h )
 
     matrix = malloc(sizeof(ws2811_led_t) * width * height);
 
-    setup_handlers();
+    ledstring.channel[0].count = led_count;
 
     if ((ret = ws2811_init(&ledstring)) != WS2811_SUCCESS)
     {
@@ -209,3 +205,16 @@ int ws2811_destroy()
 
     return 0;
 }
+/*
+int main( int argc, char* argv[] )
+{
+    (void)argc;
+    ws2811_setup( 4, 32, 8 );
+    drawPixel( atoi(argv[1]), 0x00AABBCC );
+    printf( "Press enter to quit safely.\n" );
+    getchar();
+    ws2811_destroy();
+
+    return 0;
+}
+*/
