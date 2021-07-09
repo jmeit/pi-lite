@@ -16,10 +16,13 @@ option(BUILD_TEST "Build test application" ON)
 
 set(CMAKE_C_STANDARD 11)
 
+#set( CMAKE_VERBOSE_MAKEFILE on )
+
 set(LIB_TARGET ws2811)
 set(TEST_TARGET test)
 
 set(LIB_PUBLIC_HEADERS
+    lightgrid.h
     ws2811.h
     rpihw.h
     pwm.h
@@ -31,6 +34,7 @@ set(LIB_PUBLIC_HEADERS
 )
 
 set(LIB_SOURCES
+    lightgrid.c
     mailbox.c
     ws2811.c
     pwm.c

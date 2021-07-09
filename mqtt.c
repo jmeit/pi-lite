@@ -43,6 +43,7 @@ void on_publish( struct mosquitto* mosq, void* obj, int mid )
     UNUSED( mosq );
     UNUSED( obj );
     UNUSED( mid );
+    printf( "Published\n" );
     //mosquitto_loop_stop( mosq, true );
 	//mosquitto_disconnect( mosq );
 }

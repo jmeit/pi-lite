@@ -3,6 +3,7 @@ version.h
 *.pyc
 test
 newtest
+pilite
 *.o
 *.a
 *.swp

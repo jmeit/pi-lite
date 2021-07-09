@@ -1,10 +1,13 @@
+#include <signal.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <ws2811.h>
 
+#include "lightgrid.h"
 #include "mqtt.h"
 #include "touchscreen.h"
+#include "colours.h"
 
 
 #define NUM_PANELS  4
@@ -16,7 +19,9 @@
 #define PXL_GRD_H   ( PANEL_H * NUM_PANELS )
 
 static uint8_t running = 1;
-unsigned int hitbox_w, hitbox_h, pixel = 0;
+unsigned int hitbox_w, hitbox_h,
+    old_x = 0, old_y = 0,
+    pixel = 0;
 uint32_t color = 0x00AABBCC;
 
 void draw_to_matrix( unsigned int** crds )
@@ -54,6 +59,7 @@ void draw_to_matrix( unsigned int** crds )
 static void ctrl_c_handler(int signum)
 {
     (void)(signum);
+    printf("quitting\n");
     running = 0;
     ws2811_destroy();
     mqtt_destroy();
@@ -75,13 +81,18 @@ int main()
     hitbox_w = getTouchscreenWidth() / PXL_GRD_W;
     hitbox_h = getTouchscreenHeight() / PXL_GRD_H;
 
-    ws2811_init( NUM_PANELS, PANEL_W, PANEL_H );
+    setup_handlers();
+
+    ws2811_setup( NUM_PANELS, PANEL_W, PANEL_H );
     mqtt_init();
 
     startTouchscreenRead( &running, draw_to_matrix );
 
-    ws2811_destroy();
-    mqtt_destroy();
+    if( running )
+    {
+        ws2811_destroy();
+        mqtt_destroy();
+    }
 
     return 0;
 }

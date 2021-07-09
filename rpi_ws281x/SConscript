@@ -34,6 +34,7 @@ tools_env = clean_envs['userspace'].Clone()
 
 # Build Library
 lib_srcs = Split('''
+    lightgrid.c
     mailbox.c
     ws2811.c
     pwm.c
