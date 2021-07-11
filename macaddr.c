@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "macaddr.h"
+
 
 int load_hwmac( char* mac_addr )
 {
@@ -19,14 +21,25 @@ int load_hwmac( char* mac_addr )
        return 1;
     }
 
-    fscanf( fd, "%17[^\n]", mac_addr );
+    char* pattern_tmplt = "%%%i[^\\n]";
+    char pattern[strlen( pattern_tmplt )];
+    sprintf( pattern, "%%%i[^\\n]", MAC_ADDR_LEN );
+
+    fscanf( fd, pattern, mac_addr );
 
     fclose( fd );
+
+    if( strlen(mac_addr) > MAC_ADDR_LEN )
+    {
+        mac_addr = 0;
+        printf( "Invalid MAC Address found." );
+        return 1;
+    }
 
     return 0;
 }
 
-/*
+
 const char* gethwmac()
 {
     struct ifreq ifr;
@@ -85,9 +98,6 @@ const char* gethwmac()
         (unsigned char) ifr.ifr_hwaddr.sa_data[5]
     );
 
-
-    printf( "MAC Address: %s\n", mac_address );
-
     return mac_address;
 }
-*/
+

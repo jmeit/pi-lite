@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <bsd/string.h>
 #include <mosquitto.h>
 #include "macaddr.h"
 
@@ -18,6 +19,11 @@
 
 
 struct mosquitto* mosq;
+struct userdata
+{
+    char id[ MAC_ADDR_LEN+1 ];
+};
+struct userdata udata;
 
 
 void on_connect(struct mosquitto *mosq, void *obj, int rc)
@@ -48,19 +54,27 @@ void on_publish( struct mosquitto* mosq, void* obj, int mid )
 	//mosquitto_disconnect( mosq );
 }
 
-int mqtt_init()
+int mqtt_init( char* user_id, void ( *msg_handler )( struct mosquitto*, void*, const struct mosquitto_message* ) )
 {
 	int rc;
 
 	mosquitto_lib_init();
 
-    char mac_addr[17];
-    load_hwmac( mac_addr );
+    load_hwmac( udata.id );
+    size_t uid_len = strlen( udata.id );
+    if(
+        uid_len != MAC_ADDR_LEN ||
+        strlcpy( user_id, udata.id, uid_len+1 ) >= uid_len+1
+    )
+    {
+        printf( "Invalid user ID." );
+        return -1;
+    }
 
-	mosq = mosquitto_new( mac_addr, CLEAN_SESS, NULL );
+	mosq = mosquitto_new( udata.id, CLEAN_SESS, &udata );
 
 	mosquitto_connect_callback_set( mosq, on_connect );
-	mosquitto_message_callback_set( mosq, on_message );
+	mosquitto_message_callback_set( mosq, msg_handler );
     mosquitto_publish_callback_set( mosq, on_publish );
 
     mosquitto_username_pw_set( mosq, TARGET_USER, TARGET_PASS );

@@ -27,7 +27,7 @@ unsigned int getTouchscreenHeight()
     return (unsigned int) HEIGHT;
 }
 
-int startTouchscreenRead( uint8_t *run, void (*callback)(unsigned int*[]) )
+int startTouchscreenRead( uint8_t *run, void (*callback)(unsigned int*[], unsigned int) )
 {
     int fd;
     unsigned int x = 0;
@@ -57,7 +57,7 @@ int startTouchscreenRead( uint8_t *run, void (*callback)(unsigned int*[]) )
         else if( ev.type == EV_SYN && ev.code == SYN_REPORT && x && y )
         {
             //printf("(%i,%i)\n",x,y);
-            (*callback)( crds );
+            (*callback)( crds, 1 );
         }
     }
 
