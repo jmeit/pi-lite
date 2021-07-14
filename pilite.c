@@ -71,11 +71,10 @@ void draw_to_matrix( unsigned int** crds, unsigned int raw )
     pixel = coords_to_pixel( x, y );
     drawPixel( pixel, color );
     char message[25];
-    sprintf( message, "%s %s %i,%i", user_id,color_hexstr,x,y );
+    sprintf( message, "%s %i,%i", color_hexstr,x,y );
 
     if( raw )
     {
-        printf( "publishing message\n" );
         mqtt_publish( message );
     }
 }
@@ -107,11 +106,8 @@ void on_mqtt_message( struct mosquitto *mosq, void *obj, const struct mosquitto_
     // TODO Validate msg->payload with regex
     char* token = strtok( crds_clr, " " );
 
-    // Skip publishes from self
-    if( ! strcmp( token, user_id ) ) return;
-
-    token = strtok( NULL, " " );
-    color = (unsigned int) strtol( token, NULL, 16 );
+    unsigned int res_color = (unsigned int) strtol( token, NULL, 16 );
+    unsigned int cur_color = color;
 
     char* loc;
     loc = strtok( NULL, " " );
@@ -121,7 +117,10 @@ void on_mqtt_message( struct mosquitto *mosq, void *obj, const struct mosquitto_
     token = strtok( NULL, "," );
     y = atoi(token);
     unsigned int* coords[] = {&x,&y};
+
+    color = res_color;
     draw_to_matrix( coords, 0 );
+    color = cur_color;
 }
 
 int main()

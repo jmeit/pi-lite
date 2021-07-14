@@ -16,6 +16,7 @@
 #define KEEP_ALIVE  10
 #define CLEAN_SESS  true
 #define TOPIC       "subtest"
+#define MQTT_SUB_OPT_NO_LOCAL 0x04
 
 
 struct mosquitto* mosq;
@@ -33,7 +34,7 @@ void on_connect(struct mosquitto *mosq, void *obj, int rc)
 		printf("Error with result code: %d\n", rc);
 		exit(-1);
 	}
-	mosquitto_subscribe(mosq, NULL, TOPIC, 0);
+	mosquitto_subscribe_v5( mosq, NULL, TOPIC, 0, MQTT_SUB_OPT_NO_LOCAL, NULL );
 }
 
 
@@ -72,6 +73,7 @@ int mqtt_init( char* user_id, void ( *msg_handler )( struct mosquitto*, void*, c
     }
 
 	mosq = mosquitto_new( udata.id, CLEAN_SESS, &udata );
+    mosquitto_int_option( mosq, MOSQ_OPT_PROTOCOL_VERSION, MQTT_PROTOCOL_V5 );
 
 	mosquitto_connect_callback_set( mosq, on_connect );
 	mosquitto_message_callback_set( mosq, msg_handler );

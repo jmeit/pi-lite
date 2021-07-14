@@ -126,6 +126,9 @@ unsigned int coords_to_pixel( unsigned int x, unsigned int y )
 {
     unsigned int pixel;
 
+    x = fmin( x, width-1 );
+    y = fmin( y, height-1 );
+
     printf( "Crd init: (%i,%i) -- ", x, y );
 
     unsigned int pnl_num = floor( y / panel_h );
