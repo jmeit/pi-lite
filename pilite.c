@@ -11,7 +11,7 @@
 #include <mosquitto.h>
 #include "mqtt.h"
 #include "touchscreen.h"
-#include "colours.h"
+#include "color.h"
 #include "macaddr.h"
 
 
@@ -27,7 +27,7 @@ static uint8_t running = 1;
 unsigned int hitbox_w, hitbox_h,
     old_x = 5000, old_y = 5000,
     pixel = 0;
-uint32_t color = 0x00AABBCC;
+uint32_t color = 0x00AA11CC;
 char user_id[ MAC_ADDR_LEN+1 ];
 
 void draw_to_matrix( unsigned int** crds, unsigned int raw )
@@ -43,7 +43,7 @@ void draw_to_matrix( unsigned int** crds, unsigned int raw )
 
         if ( x_raw > getTouchscreenWidth() )
         {
-            unsigned int tmp = y_raw * ( getTouchscreenHeight() - 1 );
+            double tmp = (double) y_raw / (double) getTouchscreenHeight();
             uint32_t new_color = getColor( tmp );
             if ( new_color == color ){ return; }
             color = new_color;
